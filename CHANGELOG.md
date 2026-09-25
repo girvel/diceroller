@@ -3,6 +3,7 @@
     - [x] Clear button
     - [x] Better looking buttons
     - [x] Line wrap
-    - [ ] Fix wrap artifact
-    - [ ] Better bg color
+    - [x] Fix wrap artifact
+    - [x] Better bg color
+    - [ ] Fix scroll moving the mouse away from the current button
 - [ ] History?

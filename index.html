@@ -73,7 +73,7 @@
       border-radius: 999px;
       background: var(--accent);
       box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
-      transition: none; /* enabled via .is-ready, after first positioning */
+      transition: none;
       pointer-events: none;
     }
 
@@ -159,23 +159,23 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      align-content: center;
-      gap: 0 0.02em;
+      gap: 0.05em;
       padding: 0.75rem 0;
       margin-bottom: 2rem;
-      overflow-wrap: anywhere;
-      word-break: break-word;  /* legacy fallback */
     }
 
+    /* Plain block: its inline children flow and wrap together. */
     .display-line {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      justify-content: center;
-      gap: 0 0.02em;
+      display: block;
+      width: 100%;
       max-width: 100%;
+      text-align: center;
+      line-height: 1;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
+    /* ---------- Dice grid ---------- */
     .dice-grid {
       display: flex;
       flex-wrap: wrap;
@@ -239,8 +239,20 @@
       color: var(--accent) !important;
     }
 
-    #calc, #rolling {
+    /*
+      Inline flow:
+        #calc is inline, so its text wraps as part of .display-line's
+        line boxes. #rolling is inline-block, so it sits right after
+        the last character of #calc — landing on whichever line that
+        happens to be.
+    */
+    #calc {
+      display: inline;
+    }
+
+    #rolling {
       display: inline-block;
+      margin-left: 0.03em; /* tiny gap so "+" and the die number aren't glued */
     }
 
     #eq {
@@ -353,10 +365,6 @@
     let isSingle = true;
     buttonClear.hidden = true;
 
-    /* ---------------------------------------------------------
-       Sliding thumb: measured from the real buttons so it stays
-       pixel-perfect whatever the label / font size is.
-    --------------------------------------------------------- */
     function positionThumb() {
       const active = isSingle ? buttonSingle : buttonMulti;
       const sRect = switchEl.getBoundingClientRect();
@@ -378,8 +386,6 @@
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(positionThumb);
     }
-
-    /* --------------------------------------------------------- */
 
     function resetDisplays() {
       if (rollInterval) {
