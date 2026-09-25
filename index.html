@@ -350,13 +350,17 @@
     }
 
     .die-button text {
-      font-size: 26px;
+      font-size: 32px;
       font-weight: 700;
       font-family: Georgia, "Palatino Linotype", serif;
       fill: currentColor;
       stroke: none;
       user-select: none;
       letter-spacing: -0.02em;
+    }
+
+    .die-button[data-sides="100"] text {
+      font-size: 24px;
     }
 
     @keyframes pop {
@@ -555,8 +559,8 @@
         <button id="button-multi" class="switch-btn" type="button" aria-pressed="false">Multi</button>
       </div>
       <div class="btn-group">
-        <button id="button-history" class="ghost-btn ghost-btn--gold" type="button" aria-expanded="false" aria-controls="history-sidebar">History</button>
         <button id="button-clear" class="ghost-btn" type="button">Clear</button>
+        <button id="button-history" class="ghost-btn ghost-btn--gold" type="button" aria-expanded="false" aria-controls="history-sidebar">History</button>
       </div>
     </div>
 
@@ -564,7 +568,7 @@
       <button class="die-button" data-sides="4" aria-label="Roll d4">
         <svg viewBox="0 0 100 100">
           <polygon points="50,15 15,80 85,80" />
-          <text x="50%" y="64%" dominant-baseline="middle" text-anchor="middle">4</text>
+          <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle">4</text>
         </svg>
       </button>
       <button class="die-button" data-sides="6" aria-label="Roll d6">
@@ -600,7 +604,7 @@
       <button class="die-button" data-sides="100" aria-label="Roll d100">
         <svg viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="35" />
-          <text x="50%" y="54%" font-size="20px" dominant-baseline="middle" text-anchor="middle">100</text>
+          <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle">100</text>
         </svg>
       </button>
     </div>
