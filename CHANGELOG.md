@@ -1,4 +1,5 @@
 - [x] Functioning prototype
 - [ ] Single/multiple switch
-    - [ ] Clear button
-    - [ ] 
+    - [x] Clear button
+    - [ ] Line wrap
+    - [ ] Better looking buttons
