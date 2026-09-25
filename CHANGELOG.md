@@ -9,3 +9,4 @@
 - [x] History?
 - [x] Status (like 10d20 + 5d6)
 - [x] i18n
+- [ ] UI too big for phones; everything should fit in a single screen
