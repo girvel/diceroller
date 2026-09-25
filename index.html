@@ -29,12 +29,18 @@
       background-color: var(--bg-color);
       color: var(--text-main);
       display: flex;
-      align-items: center;
-      justify-content: center;
       min-height: 100vh;
+      padding: 1rem;
+      /* We do our own scroll compensation in JS, so turn off the
+         browser's scroll anchoring to avoid double-correcting. */
+      overflow-anchor: none;
     }
 
     .container {
+      /* auto margins = "center if there's room, otherwise start at top
+         and let the page scroll normally". This is what fixes the
+         clipped-top problem when the display area grows past 100vh. */
+      margin: auto;
       background: var(--card-bg);
       padding: 3rem 2rem;
       border-radius: 1.5rem;
@@ -164,7 +170,6 @@
       margin-bottom: 2rem;
     }
 
-    /* Plain block: its inline children flow and wrap together. */
     .display-line {
       display: block;
       width: 100%;
@@ -205,7 +210,6 @@
       outline: none;
     }
 
-    /* SVG Styling */
     .die-button svg {
       width: 100%;
       height: 100%;
@@ -224,7 +228,6 @@
       user-select: none;
     }
 
-    /* Pop Animation for Result */
     @keyframes pop {
       0% { transform: scale(0.8); opacity: 0; }
       50% { transform: scale(1.1); }
@@ -239,20 +242,13 @@
       color: var(--accent) !important;
     }
 
-    /*
-      Inline flow:
-        #calc is inline, so its text wraps as part of .display-line's
-        line boxes. #rolling is inline-block, so it sits right after
-        the last character of #calc — landing on whichever line that
-        happens to be.
-    */
     #calc {
       display: inline;
     }
 
     #rolling {
       display: inline-block;
-      margin-left: 0.03em; /* tiny gap so "+" and the die number aren't glued */
+      margin-left: 0.03em;
     }
 
     #eq {
@@ -281,15 +277,6 @@
 </head>
 <body>
   <div class="container">
-    <div class="control-area">
-      <div class="switch" role="group" aria-label="Roll mode">
-        <span class="switch-thumb" aria-hidden="true"></span>
-        <button id="button-single" class="switch-btn" type="button" aria-pressed="true">Single</button>
-        <button id="button-multi" class="switch-btn" type="button" aria-pressed="false">Multi</button>
-      </div>
-      <button id="button-clear" class="ghost-btn" type="button">Clear</button>
-    </div>
-
     <div class="display-area">
       <div class="display-line">
         <div id="calc"></div>
@@ -297,6 +284,15 @@
       </div>
       <div id="eq"></div>
       <div id="result"></div>
+    </div>
+
+    <div class="control-area">
+      <div class="switch" role="group" aria-label="Roll mode">
+        <span class="switch-thumb" aria-hidden="true"></span>
+        <button id="button-single" class="switch-btn" type="button" aria-pressed="true">Single</button>
+        <button id="button-multi" class="switch-btn" type="button" aria-pressed="false">Multi</button>
+      </div>
+      <button id="button-clear" class="ghost-btn" type="button">Clear</button>
     </div>
 
     <div class="dice-grid">
@@ -360,11 +356,35 @@
     const diceButtons = document.querySelectorAll('.die-button');
     const switchEl = document.querySelector('.switch');
     const thumbEl = document.querySelector('.switch-thumb');
+    const containerEl = document.querySelector('.container');
+    const diceGridEl = document.querySelector('.dice-grid');
 
     let rollInterval = null;
     let isSingle = true;
     buttonClear.hidden = true;
 
+    /* ---------------------------------------------------------
+       Scroll anchoring.
+    --------------------------------------------------------- */
+    function docTop(el) {
+      return el.getBoundingClientRect().top + window.scrollY;
+    }
+
+    let lastGridTop = docTop(diceGridEl);
+
+    const ro = new ResizeObserver(() => {
+      const newTop = docTop(diceGridEl);
+      const delta = newTop - lastGridTop;
+      if (delta !== 0) {
+        window.scrollBy(0, delta);
+      }
+      lastGridTop = docTop(diceGridEl);
+    });
+    ro.observe(containerEl);
+
+    /* ---------------------------------------------------------
+       Sliding thumb
+    --------------------------------------------------------- */
     function positionThumb() {
       const active = isSingle ? buttonSingle : buttonMulti;
       const sRect = switchEl.getBoundingClientRect();
@@ -386,6 +406,8 @@
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(positionThumb);
     }
+
+    /* --------------------------------------------------------- */
 
     function resetDisplays() {
       if (rollInterval) {
