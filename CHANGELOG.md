@@ -1,0 +1,2 @@
+- [x] Functioning prototype
+- [ ] Single/multiple switch
