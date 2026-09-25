@@ -1,226 +1,264 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dice Roller with Good UX</title>
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-android.png" />
-    <link rel="apple-touch-icon" href="/favicon-ios.png" />
-    <style>
-        :root {
-            --bg-color: #f4f4f9;
-            --card-bg: #ffffff;
-            --text-main: #1e1e2f;
-            --text-muted: #8e8e9f;
-            --accent: #6366f1;
-            --accent-hover: #4f46e5;
-            --border: #e2e2ea;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dice Roller with Good UX</title>
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-android.png" />
+  <link rel="apple-touch-icon" href="/favicon-ios.png" />
+  <style>
+    :root {
+      --bg-color: #f4f4f9;
+      --card-bg: #ffffff;
+      --text-main: #1e1e2f;
+      --text-muted: #8e8e9f;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --border: #e2e2ea;
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
 
-        .container {
-            background: var(--card-bg);
-            padding: 3rem 2rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-        }
+    .container {
+      background: var(--card-bg);
+      padding: 3rem 2rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+    }
 
-        /* Display Area */
-        .display-area {
-            height: 160px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 2rem;
-        }
+    .control-area {
+      text-align: left;
+    }
 
-        #result {
-            font-size: 6rem;
-            font-weight: 800;
-            line-height: 1;
-            color: var(--text-main);
-            font-variant-numeric: tabular-nums;
-        }
+    .display-area {
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
 
-        /* Dice Grid */
-        .dice-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            justify-content: center;
-        }
+    .dice-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
 
-        .die-btn {
-            background: none;
-            border: 2px solid var(--border);
-            border-radius: 0.75rem;
-            width: 80px;
-            height: 80px;
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    .die-btn {
+      background: none;
+      border: 2px solid var(--border);
+      border-radius: 0.75rem;
+      width: 80px;
+      height: 80px;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        .die-btn:hover, .die-btn:focus {
-            border-color: var(--accent);
-            color: var(--accent);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(99, 102, 241, 0.15);
-            outline: none;
-        }
+    .die-btn:hover, .die-btn:focus {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(99, 102, 241, 0.15);
+      outline: none;
+    }
 
-        /* SVG Styling */
-        .die-btn svg {
-            width: 100%;
-            height: 100%;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 4;
-            stroke-linejoin: round;
-        }
+    /* SVG Styling */
+    .die-btn svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 4;
+      stroke-linejoin: round;
+    }
 
-        .die-btn text {
-            font-size: 26px;
-            font-weight: bold;
-            font-family: system-ui, sans-serif;
-            fill: currentColor;
-            stroke: none;
-            user-select: none;
-        }
+    .die-btn text {
+      font-size: 26px;
+      font-weight: bold;
+      font-family: system-ui, sans-serif;
+      fill: currentColor;
+      stroke: none;
+      user-select: none;
+    }
 
-        /* Pop Animation for Result */
-        @keyframes pop {
-            0% { transform: scale(0.8); opacity: 0; }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
+    /* Pop Animation for Result */
+    @keyframes pop {
+      0% { transform: scale(0.8); opacity: 0; }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
 
-        .animate-pop {
-            animation: pop 0.3s ease-out forwards;
-        }
-        
-        .rolling {
-            color: var(--accent) !important;
-        }
-    </style>
+    .animate-pop {
+      animation: pop 0.3s ease-out forwards;
+    }
+    
+    .rolling {
+      color: var(--accent) !important;
+    }
+
+    #calc, #rolling, #result, #eq {
+      display: inline-block;
+      font-size: 6rem;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--text-main);
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="display-area">
-            <div id="result">-</div>
-        </div>
-
-        <div class="dice-grid">
-            <button class="die-btn" data-sides="4" aria-label="Roll d4">
-                <svg viewBox="0 0 100 100">
-                    <polygon points="50,15 15,80 85,80" />
-                    <text x="50%" y="64%" dominant-baseline="middle" text-anchor="middle">d4</text>
-                </svg>
-            </button>
-            <button class="die-btn" data-sides="6" aria-label="Roll d6">
-                <svg viewBox="0 0 100 100">
-                    <rect x="20" y="20" width="60" height="60" rx="8" />
-                    <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle">d6</text>
-                </svg>
-            </button>
-            <button class="die-btn" data-sides="8" aria-label="Roll d8">
-                <svg viewBox="0 0 100 100">
-                    <polygon points="50,15 85,50 50,85 15,50" />
-                    <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle">d8</text>
-                </svg>
-            </button>
-            <button class="die-btn" data-sides="10" aria-label="Roll d10">
-                <svg viewBox="0 0 100 100">
-                    <polygon points="50,15 85,40 50,85 15,40" />
-                    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">d10</text>
-                </svg>
-            </button>
-            <button class="die-btn" data-sides="12" aria-label="Roll d12">
-                <svg viewBox="0 0 100 100">
-                    <polygon points="50,15 85,38 72,85 28,85 15,38" />
-                    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle">d12</text>
-                </svg>
-            </button>
-            <button class="die-btn" data-sides="20" aria-label="Roll d20">
-                <svg viewBox="0 0 100 100">
-                    <polygon points="50,10 85,30 85,70 50,90 15,70 15,30" />
-                    <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle">d20</text>
-                </svg>
-            </button>
-            <button class="die-btn" data-sides="100" aria-label="Roll d100">
-                <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="35" />
-                    <text x="50%" y="54%" font-size="20px" dominant-baseline="middle" text-anchor="middle">d100</text>
-                </svg>
-            </button>
-        </div>
+  <div class="container">
+    <div class="control-area">
+      <button id="btn-single">Single</button>
+      <button id="btn-multi">Multi</button>
     </div>
 
-    <script>
-        if (navigator.language.startsWith("ru")) {
-          document.title = "Удобные кости";
+    <div class="display-area">
+      <div id="calc"></div>
+      <div id="rolling"></div>
+      <div id="eq"></div>
+      <div id="result"></div>
+    </div>
+
+    <div class="dice-grid">
+      <button class="die-btn" data-sides="4" aria-label="Roll d4">
+        <svg viewBox="0 0 100 100">
+          <polygon points="50,15 15,80 85,80" />
+          <text x="50%" y="64%" dominant-baseline="middle" text-anchor="middle">d4</text>
+        </svg>
+      </button>
+      <button class="die-btn" data-sides="6" aria-label="Roll d6">
+        <svg viewBox="0 0 100 100">
+          <rect x="20" y="20" width="60" height="60" rx="8" />
+          <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle">d6</text>
+        </svg>
+      </button>
+      <button class="die-btn" data-sides="8" aria-label="Roll d8">
+        <svg viewBox="0 0 100 100">
+          <polygon points="50,15 85,50 50,85 15,50" />
+          <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle">d8</text>
+        </svg>
+      </button>
+      <button class="die-btn" data-sides="10" aria-label="Roll d10">
+        <svg viewBox="0 0 100 100">
+          <polygon points="50,15 85,40 50,85 15,40" />
+          <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">d10</text>
+        </svg>
+      </button>
+      <button class="die-btn" data-sides="12" aria-label="Roll d12">
+        <svg viewBox="0 0 100 100">
+          <polygon points="50,15 85,38 72,85 28,85 15,38" />
+          <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle">d12</text>
+        </svg>
+      </button>
+      <button class="die-btn" data-sides="20" aria-label="Roll d20">
+        <svg viewBox="0 0 100 100">
+          <polygon points="50,10 85,30 85,70 50,90 15,70 15,30" />
+          <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle">d20</text>
+        </svg>
+      </button>
+      <button class="die-btn" data-sides="100" aria-label="Roll d100">
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="35" />
+          <text x="50%" y="54%" font-size="20px" dominant-baseline="middle" text-anchor="middle">d100</text>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    if (navigator.language.startsWith("ru")) {
+      document.title = "Удобные кости";
+    }
+
+    const calcDisplay = document.getElementById('calc');
+    const rollingDisplay = document.getElementById('rolling');
+    const eqDisplay = document.getElementById('eq');
+    const resultDisplay = document.getElementById('result');
+    const buttonSingle = document.getElementById('btn-single');
+    const buttonMulti = document.getElementById('btn-multi');
+    const diceButtons = document.querySelectorAll('.die-btn');
+    let rollInterval;
+
+    let isSingle = true;
+
+    function rollDie(sides) {
+      if (rollInterval) clearInterval(rollInterval);
+
+      if (rollingDisplay.innerText !== "") {
+        calcDisplay.innerText = calcDisplay.innerText + rollingDisplay.innerText + "+";
+        rollingDisplay.innerText = "";
+      }
+
+      rollingDisplay.classList.remove('animate-pop');
+      resultDisplay.classList.remove('animate-pop');
+      rollingDisplay.classList.add('rolling');
+      resultDisplay.classList.add('rolling');
+
+      let ticks = 0;
+      const maxTicks = 12;
+      const tickDuration = 35;
+
+      rollInterval = setInterval(() => {
+        rollingDisplay.innerText = Math.floor(Math.random() * sides) + 1;
+        ticks++;
+
+        if (ticks >= maxTicks) {
+          clearInterval(rollInterval);
+          
+          const finalResult = Math.floor(Math.random() * sides) + 1;
+          rollingDisplay.classList.remove('rolling');
+          resultDisplay.classList.remove('rolling');
+          rollingDisplay.innerText = finalResult;
+          void resultDisplay.offsetWidth;
+          rollingDisplay.classList.add('animate-pop');
+
+          if (calcDisplay.innerText !== "") {
+            eqDisplay.innerText = "=";
+            resultDisplay.innerText = eval(calcDisplay.innerText + rollingDisplay.innerText);
+            resultDisplay.classList.add('animate-pop');
+          }
         }
+      }, tickDuration);
+    }
 
-        const resultDisplay = document.getElementById('result');
-        const diceButtons = document.querySelectorAll('.die-btn');
-        let rollInterval;
+    diceButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const sides = parseInt(button.dataset.sides, 10);
+        rollDie(sides);
+      });
+    });
 
-        function rollDie(sides) {
-            if (rollInterval) clearInterval(rollInterval);
+    buttonSingle.addEventListener('click', () => {
+      isSingle = true;
+    });
 
-            resultDisplay.classList.remove('animate-pop');
-            resultDisplay.classList.add('rolling');
-
-            let ticks = 0;
-            const maxTicks = 12;
-            const tickDuration = 35;
-
-            rollInterval = setInterval(() => {
-                resultDisplay.innerText = Math.floor(Math.random() * sides) + 1;
-                ticks++;
-
-                if (ticks >= maxTicks) {
-                    clearInterval(rollInterval);
-                    
-                    const finalResult = Math.floor(Math.random() * sides) + 1;
-                    resultDisplay.innerText = finalResult;
-                    resultDisplay.classList.remove('rolling');
-                    
-                    void resultDisplay.offsetWidth;
-                    resultDisplay.classList.add('animate-pop');
-                }
-            }, tickDuration);
-        }
-
-        diceButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const sides = parseInt(button.dataset.sides, 10);
-                rollDie(sides);
-            });
-        });
-    </script>
+    buttonMulti.addEventListener('click', () => {
+      isSingle = false;
+    });
+  </script>
 </body>
 </html>

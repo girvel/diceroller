@@ -1,2 +1,4 @@
 - [x] Functioning prototype
 - [ ] Single/multiple switch
+    - [ ] Clear button
+    - [ ] 
