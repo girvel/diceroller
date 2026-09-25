@@ -7,3 +7,4 @@
 - [x] Better bg color
 - [x] Fix scroll moving the mouse away from the current button
 - [ ] History?
+- [ ] Status (like 10d20 + 5d6)

@@ -9,13 +9,29 @@
   <link rel="apple-touch-icon" href="/diceroller/favicon-ios.png" />
   <style>
     :root {
-      --bg-color: #0f766e;
-      --card-bg: #ffffff;
-      --text-main: #1e1e2f;
-      --text-muted: #8e8e9f;
-      --accent: #6366f1;
-      --accent-hover: #4f46e5;
-      --border: #e2e2ea;
+      /* Dark stone / night sky */
+      --bg-color: #1a1208;
+      --bg-glow: #6b3a10;
+      /* Parchment card */
+      --card-bg: #efe0b8;
+      --card-shade: #d4b878;
+      /* Ink on parchment */
+      --text-main: #2a1a08;
+      --text-muted: #6b4a1a;
+      /* Gold / bronze */
+      --gold-light: #f5d670;
+      --gold-mid: #c9a227;
+      --gold-dark: #8b6914;
+      --bronze: #8b6a30;
+      --bronze-dark: #3a2a14;
+      --bronze-shadow: #2a1a08;
+      /* Wax seal red */
+      --wax-red: #8b1010;
+      --wax-red-hi: #c03030;
+      --wax-red-dark: #4a0808;
+      /* Accent used by .rolling flicker */
+      --accent: #b8860b;
+      --border: #8b6a30;
     }
 
     * {
@@ -24,30 +40,56 @@
       padding: 0;
     }
 
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
+    html {
       background-color: var(--bg-color);
+    }
+
+    body {
+      font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, "Times New Roman", serif;
       color: var(--text-main);
       display: flex;
       box-sizing: content-box;
       min-height: calc(100vh - 2rem);
       padding: 1rem;
-      /* We do our own scroll compensation in JS, so turn off the
-         browser's scroll anchoring to avoid double-correcting. */
       overflow-anchor: none;
+
+      /* Atmospheric dark background: warm vignette + faint red glow */
+      background-color: var(--bg-color);
+      background-image:
+        radial-gradient(ellipse at 50% 15%, rgba(201, 162, 39, 0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 15% 85%, rgba(139, 16, 16, 0.10) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 75%, rgba(139, 16, 16, 0.08) 0%, transparent 55%);
+      background-attachment: fixed;
     }
 
     .container {
-      /* auto margins = "center if there's room, otherwise start at top
-         and let the page scroll normally". */
+      /* Centering behaviour preserved */
       margin: auto;
-      background: var(--card-bg);
-      padding: 3rem 2rem;
-      border-radius: 1.5rem;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      background-color: var(--card-bg);
+
+      /* Aged parchment: warm top highlight, corner shading, subtle fibre dots */
+      background-image:
+        radial-gradient(ellipse at 25% 0%, rgba(255, 250, 220, 0.9) 0%, transparent 55%),
+        radial-gradient(ellipse at 90% 100%, rgba(139, 90, 30, 0.18) 0%, transparent 55%),
+        radial-gradient(circle, rgba(120, 80, 30, 0.05) 1px, transparent 1px);
+      background-size: auto, auto, 3px 3px;
+
+      padding: 2.75rem 2rem;
       width: 100%;
       max-width: 600px;
       text-align: center;
+
+      /* Ornate double frame: inner bronze line + outer dark outline */
+      border: 1px solid var(--bronze);
+      outline: 2px solid var(--bronze-shadow);
+      outline-offset: 4px;
+      border-radius: 3px;
+
+      box-shadow:
+        inset 0 0 40px rgba(139, 90, 30, 0.22),
+        inset 0 0 0 1px rgba(255, 240, 200, 0.4),
+        0 14px 40px rgba(0, 0, 0, 0.65),
+        0 0 60px rgba(201, 162, 39, 0.08);
     }
 
     /* ---------- Control bar ---------- */
@@ -59,15 +101,20 @@
       margin-bottom: 1.5rem;
     }
 
-    /* ---------- Segmented switch ---------- */
+    /* ---------- Segmented switch (carved bronze plaque) ---------- */
     .switch {
       position: relative;
       display: inline-flex;
-      padding: 4px;
-      background: var(--switch-track, #eef0f6);
-      border-radius: 999px;
+      padding: 3px;
+      background: linear-gradient(180deg, var(--bronze-dark) 0%, #5a3f1e 100%);
+      border: 1px solid var(--bronze-shadow);
+      border-radius: 4px;
       user-select: none;
       -webkit-user-select: none;
+      box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.55),
+        inset 0 -1px 0 rgba(255, 220, 150, 0.15),
+        0 2px 0 rgba(0, 0, 0, 0.4);
     }
 
     .switch-thumb {
@@ -76,9 +123,14 @@
       left: 0;
       width: 0;
       height: 0;
-      border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+      border-radius: 3px;
+      background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold-mid) 50%, var(--gold-dark) 100%);
+      border: 1px solid var(--bronze-dark);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+        0 1px 3px rgba(0, 0, 0, 0.45),
+        0 0 12px rgba(201, 162, 39, 0.45);
       transition: none;
       pointer-events: none;
     }
@@ -96,61 +148,82 @@
       border: none;
       background: transparent;
       font: inherit;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-muted);
+      font-family: Georgia, "Palatino Linotype", serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #d4b878;
+      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
       padding: 0.55rem 1.35rem;
-      border-radius: 999px;
+      border-radius: 3px;
       cursor: pointer;
-      transition: color 0.25s ease;
+      transition: color 0.2s ease, text-shadow 0.2s ease;
       -webkit-tap-highlight-color: transparent;
     }
 
     .switch-btn:hover {
-      color: var(--text-main);
+      color: var(--gold-light);
     }
 
     .switch-btn[aria-pressed="true"],
     .switch-btn[aria-pressed="true"]:hover {
-      color: #ffffff;
+      color: #2a1a08;
+      text-shadow: 0 1px 0 rgba(255, 220, 150, 0.6);
     }
 
     .switch-btn:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 3px;
+      outline: 2px solid var(--gold-light);
+      outline-offset: 2px;
     }
 
-    /* ---------- Clear button ---------- */
+    /* ---------- Clear button (wax seal) ---------- */
     .ghost-btn {
-      border: 1px solid var(--border);
-      background: transparent;
+      border: 1px solid var(--wax-red-dark);
+      background: linear-gradient(180deg, var(--wax-red-hi) 0%, var(--wax-red) 55%, #6a0808 100%);
       font: inherit;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      padding: calc(0.55rem - 1px) 1.15rem;
-      border-radius: 999px;
+      font-family: Georgia, "Palatino Linotype", serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f0d090;
+      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+      padding: 0.55rem 1.15rem;
+      border-radius: 3px;
       cursor: pointer;
       transition:
         color 0.2s ease,
-        border-color 0.2s ease,
-        background-color 0.2s ease,
-        transform 0.15s ease;
+        background 0.2s ease,
+        transform 0.1s ease,
+        box-shadow 0.2s ease;
       -webkit-tap-highlight-color: transparent;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 200, 150, 0.35),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+        0 2px 0 #3a0505,
+        0 3px 8px rgba(0, 0, 0, 0.5);
     }
 
     .ghost-btn:hover {
-      color: var(--accent);
-      border-color: var(--accent);
-      background: rgba(99, 102, 241, 0.06);
+      color: #fff8dd;
+      background: linear-gradient(180deg, #d04040 0%, var(--wax-red-hi) 55%, var(--wax-red) 100%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 200, 150, 0.5),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+        0 2px 0 #3a0505,
+        0 3px 12px rgba(192, 48, 48, 0.55);
     }
 
     .ghost-btn:active {
-      transform: scale(0.96);
+      transform: translateY(1px);
+      box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.5),
+        0 0 0 #3a0505;
     }
 
     .ghost-btn:focus-visible {
-      outline: 2px solid var(--accent);
+      outline: 2px solid var(--gold-light);
       outline-offset: 2px;
     }
 
@@ -158,7 +231,7 @@
       display: none;
     }
 
-    /* ---------- Display ---------- */
+    /* ---------- Display (recessed manuscript panel) ---------- */
     .display-area {
       min-height: 160px;
       display: flex;
@@ -166,8 +239,20 @@
       align-items: center;
       justify-content: center;
       gap: 0.05em;
-      padding: 0.75rem 0;
+      padding: 0.75rem 0.5rem;
       margin-bottom: 2rem;
+
+      background:
+        linear-gradient(180deg,
+          rgba(74, 42, 15, 0.10) 0%,
+          rgba(74, 42, 15, 0.02) 25%,
+          rgba(74, 42, 15, 0.02) 75%,
+          rgba(74, 42, 15, 0.10) 100%);
+      border: 1px solid rgba(107, 74, 26, 0.35);
+      border-radius: 3px;
+      box-shadow:
+        inset 0 2px 6px rgba(74, 42, 15, 0.18),
+        inset 0 -1px 0 rgba(255, 250, 220, 0.6);
     }
 
     .display-line {
@@ -188,26 +273,47 @@
       justify-content: center;
     }
 
+    /* Carved wooden / bone tiles */
     .die-button {
-      background: none;
-      border: 2px solid var(--border);
-      border-radius: 0.75rem;
+      background: linear-gradient(180deg, #f7ecc8 0%, #e8d5a0 48%, #d4b878 100%);
+      border: 2px solid #6b4a1a;
+      border-radius: 5px;
       width: 80px;
       height: 80px;
       cursor: pointer;
-      color: var(--text-muted);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      color: #4a2f0f;
+      transition: color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.65),
+        inset -1px -1px 0 rgba(107, 74, 26, 0.35),
+        0 3px 0 #4a2f0f,
+        0 5px 10px rgba(0, 0, 0, 0.4);
     }
 
     .die-button:hover, .die-button:focus {
-      border-color: var(--accent);
-      color: var(--accent);
-      transform: translateY(-3px);
-      box-shadow: 0 6px 15px rgba(99, 102, 241, 0.15);
+      border-color: var(--gold-mid);
+      color: #8b0000;
+      background: linear-gradient(180deg, #fff8dd 0%, #f5e5b0 48%, #e0c586 100%);
+      transform: translateY(-2px);
+      box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.8),
+        inset -1px -1px 0 rgba(107, 74, 26, 0.35),
+        0 5px 0 #4a2f0f,
+        0 8px 18px rgba(201, 162, 39, 0.55),
+        0 0 0 1px rgba(201, 162, 39, 0.4);
       outline: none;
+    }
+
+    .die-button:active {
+      transform: translateY(2px);
+      box-shadow:
+        inset 1px 1px 3px rgba(74, 42, 15, 0.4),
+        inset -1px -1px 0 rgba(255, 255, 255, 0.3),
+        0 1px 0 #4a2f0f,
+        0 2px 4px rgba(0, 0, 0, 0.35);
     }
 
     .die-button svg {
@@ -221,13 +327,15 @@
 
     .die-button text {
       font-size: 26px;
-      font-weight: bold;
-      font-family: system-ui, sans-serif;
+      font-weight: 700;
+      font-family: Georgia, "Palatino Linotype", serif;
       fill: currentColor;
       stroke: none;
       user-select: none;
+      letter-spacing: -0.02em;
     }
 
+    /* Pop Animation for Result */
     @keyframes pop {
       0% { transform: scale(0.8); opacity: 0; }
       50% { transform: scale(1.1); }
@@ -238,8 +346,13 @@
       animation: pop 0.3s ease-out forwards;
     }
 
+    /* Glowing rune while flickering */
     .rolling {
       color: var(--accent) !important;
+      text-shadow:
+        0 0 12px rgba(201, 162, 39, 0.65),
+        0 0 24px rgba(201, 162, 39, 0.35),
+        0 1px 0 rgba(255, 250, 220, 0.7) !important;
     }
 
     #calc {
@@ -259,15 +372,42 @@
       font-size: 6rem;
     }
 
+    /* Old manuscript ink: engraved into the parchment */
     #calc, #rolling, #result, #eq {
-      font-weight: 800;
+      font-weight: 700;
+      font-family: Georgia, "Palatino Linotype", serif;
       line-height: 1;
-      color: var(--text-main);
+      color: #3a1a08;
+      text-shadow:
+        0 1px 0 rgba(255, 250, 220, 0.7),
+        0 -1px 0 rgba(74, 42, 15, 0.25);
       font-variant-numeric: tabular-nums;
       min-width: 0;
       max-width: 100%;
       overflow-wrap: anywhere;
       word-break: break-word;
+    }
+
+    /* --- Retro scrollbar (WebKit/Blink) --- */
+    ::-webkit-scrollbar {
+      width: 12px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bronze-shadow);
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, var(--gold-mid) 0%, var(--gold-dark) 100%);
+      border: 1px solid var(--bronze-shadow);
+      border-radius: 2px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold-mid) 100%);
+    }
+    /* Firefox */
+    html {
+      scrollbar-color: var(--gold-mid) var(--bronze-shadow);
+      scrollbar-width: thin;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -279,8 +419,7 @@
   <div class="container">
     <div class="display-area">
       <div class="display-line">
-        <div id="calc"></div>
-        <div id="rolling"></div>
+        <div id="calc"></div><div id="rolling"></div>
       </div>
       <div id="eq"></div>
       <div id="result"></div>
@@ -392,7 +531,7 @@
 
       if (remaining > 0) {
         setBodyPaddingBottom(getBodyPaddingBottom() + remaining);
-        void bodyEl.offsetHeight; // force reflow so the scroll can take effect
+        void bodyEl.offsetHeight;
         window.scrollBy(0, remaining);
       } else if (remaining < 0) {
         const curPB = getBodyPaddingBottom();
