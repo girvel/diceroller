@@ -731,6 +731,7 @@
 
     function recordHistory() {
       if (currentSessionRolls.length === 0 || currentSessionId === null) return;
+      if (currentSessionRolls.some(r => r.value === null)) return;
       const entry = {
         id: currentSessionId,
         rolls: currentSessionRolls.map(r => ({ sides: r.sides, value: r.value }))
@@ -836,16 +837,23 @@
       document.fonts.ready.then(positionThumb);
     }
 
-    function commitRoll(sides, value) {
+    function startSessionRoll(sides) {
       if (isSingle) {
         currentSessionId = ++sessionCounter;
-        currentSessionRolls = [{ sides, value }];
+        currentSessionRolls = [{ sides, value: null }];
       } else {
         if (currentSessionId === null) currentSessionId = ++sessionCounter;
-        currentSessionRolls.push({ sides, value });
+        currentSessionRolls.push({ sides, value: null });
       }
       updateStatus();
-      recordHistory();
+    }
+
+    function commitLastValue(value) {
+      const last = currentSessionRolls[currentSessionRolls.length - 1];
+      if (last && last.value === null) {
+        last.value = value;
+        recordHistory();
+      }
     }
 
     function resetDisplays() {
@@ -884,7 +892,7 @@
         clearInterval(rollInterval);
         rollInterval = null;
         if (pendingRoll) {
-          commitRoll(pendingRoll.sides, pendingRoll.value);
+          commitLastValue(pendingRoll.value);
           pendingRoll = null;
         }
       }
@@ -895,6 +903,8 @@
         calcDisplay.innerText = calcDisplay.innerText + rollingDisplay.innerText + "+";
         rollingDisplay.innerText = "";
       }
+
+      startSessionRoll(sides);
 
       rollingDisplay.classList.remove('animate-pop');
       resultDisplay.classList.remove('animate-pop');
@@ -927,7 +937,7 @@
           rollingDisplay.classList.add('animate-pop');
 
           pendingRoll = null;
-          commitRoll(sides, finalResult);
+          commitLastValue(finalResult);
 
           if (calcDisplay.innerText !== "") {
             eqDisplay.innerText = "=";
