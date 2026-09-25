@@ -1,9 +1,9 @@
 - [x] Functioning prototype
-- [ ] Single/multiple switch
+- [x] Single/multiple switch
     - [x] Clear button
     - [x] Better looking buttons
     - [x] Line wrap
     - [x] Fix wrap artifact
-    - [x] Better bg color
-    - [ ] Fix scroll moving the mouse away from the current button
+- [x] Better bg color
+- [x] Fix scroll moving the mouse away from the current button
 - [ ] History?

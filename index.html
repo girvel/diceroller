@@ -29,7 +29,8 @@
       background-color: var(--bg-color);
       color: var(--text-main);
       display: flex;
-      min-height: 100vh;
+      box-sizing: content-box;
+      min-height: calc(100vh - 2rem);
       padding: 1rem;
       /* We do our own scroll compensation in JS, so turn off the
          browser's scroll anchoring to avoid double-correcting. */
@@ -38,8 +39,7 @@
 
     .container {
       /* auto margins = "center if there's room, otherwise start at top
-         and let the page scroll normally". This is what fixes the
-         clipped-top problem when the display area grows past 100vh. */
+         and let the page scroll normally". */
       margin: auto;
       background: var(--card-bg);
       padding: 3rem 2rem;
@@ -358,6 +358,7 @@
     const thumbEl = document.querySelector('.switch-thumb');
     const containerEl = document.querySelector('.container');
     const diceGridEl = document.querySelector('.dice-grid');
+    const bodyEl = document.body;
 
     let rollInterval = null;
     let isSingle = true;
@@ -370,15 +371,39 @@
       return el.getBoundingClientRect().top + window.scrollY;
     }
 
-    let lastGridTop = docTop(diceGridEl);
+    function getBodyPaddingBottom() {
+      return parseFloat(getComputedStyle(bodyEl).paddingBottom) || 0;
+    }
+    function setBodyPaddingBottom(px) {
+      bodyEl.style.paddingBottom = Math.max(0, px) + 'px';
+    }
+
+    let lastGridDocTop = docTop(diceGridEl);
 
     const ro = new ResizeObserver(() => {
-      const newTop = docTop(diceGridEl);
-      const delta = newTop - lastGridTop;
-      if (delta !== 0) {
-        window.scrollBy(0, delta);
+      const newDocTop = docTop(diceGridEl);
+      const delta = newDocTop - lastGridDocTop;
+      if (delta === 0) return;
+
+      const sBefore = window.scrollY;
+      window.scrollBy(0, delta);
+      const applied = window.scrollY - sBefore;
+      const remaining = delta - applied;
+
+      if (remaining > 0) {
+        setBodyPaddingBottom(getBodyPaddingBottom() + remaining);
+        void bodyEl.offsetHeight; // force reflow so the scroll can take effect
+        window.scrollBy(0, remaining);
+      } else if (remaining < 0) {
+        const curPB = getBodyPaddingBottom();
+        const basePB = 16;
+        const reduceBy = Math.min(-remaining, Math.max(0, curPB - basePB));
+        if (reduceBy > 0) {
+          setBodyPaddingBottom(curPB - reduceBy);
+        }
       }
-      lastGridTop = docTop(diceGridEl);
+
+      lastGridDocTop = docTop(diceGridEl);
     });
     ro.observe(containerEl);
 
@@ -420,6 +445,12 @@
       resultDisplay.innerText = "";
       rollingDisplay.classList.remove('animate-pop', 'rolling');
       resultDisplay.classList.remove('animate-pop', 'rolling');
+
+      setBodyPaddingBottom(16);
+      window.scrollTo(0, 0);
+      requestAnimationFrame(() => {
+        lastGridDocTop = docTop(diceGridEl);
+      });
     }
 
     function setMode(single) {
