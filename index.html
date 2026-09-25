@@ -703,6 +703,7 @@
     const thumbEl = document.querySelector('.switch-thumb');
     const containerEl = document.querySelector('.container');
     const diceGridEl = document.querySelector('.dice-grid');
+    const displayAreaEl = document.querySelector('.display-area');
     const bodyEl = document.body;
     const sidebarEl = document.getElementById('history-sidebar');
     const historyListEl = document.getElementById('history-list');
@@ -733,6 +734,10 @@
     let historyEntries = [];
     let pendingRoll = null;
 
+    function dieLabel(sides) {
+      return STR.diePrefix + sides;
+    }
+
     function formatDiceComposition(rolls) {
       const order = [];
       const counts = new Map();
@@ -747,6 +752,25 @@
       statusEl.textContent = currentSessionRolls.length
         ? formatDiceComposition(currentSessionRolls)
         : '';
+    }
+
+    function renderCalc() {
+      const prior = currentSessionRolls.slice(0, -1);
+      calcDisplay.innerHTML = prior
+        .map(r => `<span class="roll-value" data-hover="${dieLabel(r.sides)}">${r.value}</span>+`)
+        .join('');
+    }
+
+    function renderResult() {
+      if (currentSessionRolls.length >= 2) {
+        const total = currentSessionRolls.reduce((a, r) => a + r.value, 0);
+        const composition = formatDiceComposition(currentSessionRolls);
+        eqDisplay.innerText = "=";
+        resultDisplay.innerHTML = `<span class="roll-value" data-hover="${composition}">${total}</span>`;
+      } else {
+        eqDisplay.innerText = "";
+        resultDisplay.innerHTML = "";
+      }
     }
 
     function renderHistory() {
@@ -837,6 +861,20 @@
       if (e.key === 'Escape' && sidebarEl.classList.contains('open')) setSidebar(false);
     });
 
+    displayAreaEl.addEventListener('mouseover', (e) => {
+      const span = e.target instanceof Element && e.target.closest('.roll-value');
+      if (!span) return;
+      if (e.relatedTarget instanceof Element && span.contains(e.relatedTarget)) return;
+      statusEl.textContent = span.dataset.hover || '';
+    });
+
+    displayAreaEl.addEventListener('mouseout', (e) => {
+      const span = e.target instanceof Element && e.target.closest('.roll-value');
+      if (!span) return;
+      if (e.relatedTarget instanceof Element && span.contains(e.relatedTarget)) return;
+      updateStatus();
+    });
+
     function docTop(el) {
       return el.getBoundingClientRect().top + window.scrollY;
     }
@@ -922,10 +960,10 @@
         rollInterval = null;
       }
       pendingRoll = null;
-      calcDisplay.innerText = "";
-      rollingDisplay.innerText = "";
+      calcDisplay.innerHTML = "";
+      rollingDisplay.innerHTML = "";
       eqDisplay.innerText = "";
-      resultDisplay.innerText = "";
+      resultDisplay.innerHTML = "";
       rollingDisplay.classList.remove('animate-pop', 'rolling');
       resultDisplay.classList.remove('animate-pop', 'rolling');
 
@@ -958,22 +996,22 @@
       }
 
       if (isSingle) {
-        calcDisplay.innerText = "";
-      } else if (rollingDisplay.innerText !== "") {
-        calcDisplay.innerText = calcDisplay.innerText + rollingDisplay.innerText + "+";
-        rollingDisplay.innerText = "";
+        currentSessionRolls = [];
+        currentSessionId = null;
       }
 
       startSessionRoll(sides);
+      renderCalc();
+
+      const initial = Math.floor(Math.random() * sides) + 1;
+      rollingDisplay.innerHTML = `<span class="roll-value" data-hover="${dieLabel(sides)}">${initial}</span>`;
+      const rollingSpan = rollingDisplay.querySelector('.roll-value');
+      pendingRoll = { sides, value: initial };
 
       rollingDisplay.classList.remove('animate-pop');
       resultDisplay.classList.remove('animate-pop');
       rollingDisplay.classList.add('rolling');
       resultDisplay.classList.add('rolling');
-
-      const initial = Math.floor(Math.random() * sides) + 1;
-      rollingDisplay.innerText = initial;
-      pendingRoll = { sides, value: initial };
 
       let ticks = 0;
       const maxTicks = 12;
@@ -981,7 +1019,7 @@
 
       rollInterval = setInterval(() => {
         const v = Math.floor(Math.random() * sides) + 1;
-        rollingDisplay.innerText = v;
+        rollingSpan.textContent = v;
         if (pendingRoll) pendingRoll.value = v;
         ticks++;
 
@@ -992,18 +1030,13 @@
           const finalResult = Math.floor(Math.random() * sides) + 1;
           rollingDisplay.classList.remove('rolling');
           resultDisplay.classList.remove('rolling');
-          rollingDisplay.innerText = finalResult;
+          rollingSpan.textContent = finalResult;
           void resultDisplay.offsetWidth;
           rollingDisplay.classList.add('animate-pop');
 
           pendingRoll = null;
           commitLastValue(finalResult);
-
-          if (calcDisplay.innerText !== "") {
-            eqDisplay.innerText = "=";
-            resultDisplay.innerText = eval(calcDisplay.innerText + rollingDisplay.innerText);
-            resultDisplay.classList.add('animate-pop');
-          }
+          renderResult();
         }
       }, tickDuration);
     }

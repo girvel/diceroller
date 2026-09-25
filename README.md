@@ -1,6 +1,6 @@
-# [Dice roller with good UX](https://girvel.github.io/diceroller)
-
 ![](screenshot.png)
+
+# [Dice roller with good UX](https://girvel.github.io/diceroller)
 
 All dice rollers that I found are bullshit, so here's one with UX
 
