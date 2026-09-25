@@ -2,5 +2,7 @@
 - [ ] Single/multiple switch
     - [x] Clear button
     - [x] Better looking buttons
-    - [ ] Line wrap
+    - [x] Line wrap
+    - [ ] Fix wrap artifact
+    - [ ] Better bg color
 - [ ] History?

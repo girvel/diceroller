@@ -58,7 +58,7 @@
       position: relative;
       display: inline-flex;
       padding: 4px;
-      background: var(--switch-track);
+      background: var(--switch-track, #eef0f6);
       border-radius: 999px;
       user-select: none;
       -webkit-user-select: none;
@@ -154,11 +154,26 @@
 
     /* ---------- Display ---------- */
     .display-area {
-      height: 160px;
+      min-height: 160px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      align-content: center;
+      gap: 0 0.02em;
+      padding: 0.75rem 0;
       margin-bottom: 2rem;
+      overflow-wrap: anywhere;
+      word-break: break-word;  /* legacy fallback */
+    }
+
+    .display-line {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0 0.02em;
+      max-width: 100%;
     }
 
     .dice-grid {
@@ -224,13 +239,27 @@
       color: var(--accent) !important;
     }
 
-    #calc, #rolling, #result, #eq {
+    #calc, #rolling {
       display: inline-block;
+    }
+
+    #eq {
+      font-size: 4rem;
+    }
+
+    #calc, #rolling, #result {
       font-size: 6rem;
+    }
+
+    #calc, #rolling, #result, #eq {
       font-weight: 800;
       line-height: 1;
       color: var(--text-main);
       font-variant-numeric: tabular-nums;
+      min-width: 0;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -250,8 +279,10 @@
     </div>
 
     <div class="display-area">
-      <div id="calc"></div>
-      <div id="rolling"></div>
+      <div class="display-line">
+        <div id="calc"></div>
+        <div id="rolling"></div>
+      </div>
       <div id="eq"></div>
       <div id="result"></div>
     </div>
