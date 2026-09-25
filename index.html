@@ -16,6 +16,7 @@
       --accent: #6366f1;
       --accent-hover: #4f46e5;
       --border: #e2e2ea;
+      --switch-track: #eef0f6;
     }
 
     * {
@@ -44,10 +45,115 @@
       text-align: center;
     }
 
+    /* ---------- Control bar ---------- */
     .control-area {
-      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
     }
 
+    /* ---------- Segmented switch ---------- */
+    .switch {
+      position: relative;
+      display: inline-flex;
+      padding: 4px;
+      background: var(--switch-track);
+      border-radius: 999px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .switch-thumb {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+      transition: none; /* enabled via .is-ready, after first positioning */
+      pointer-events: none;
+    }
+
+    .switch-thumb.is-ready {
+      transition:
+        transform 0.32s cubic-bezier(0.34, 1.3, 0.64, 1),
+        width 0.32s cubic-bezier(0.34, 1.3, 0.64, 1),
+        height 0.32s cubic-bezier(0.34, 1.3, 0.64, 1);
+    }
+
+    .switch-btn {
+      position: relative;
+      z-index: 1;
+      border: none;
+      background: transparent;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 0.55rem 1.35rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: color 0.25s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .switch-btn:hover {
+      color: var(--text-main);
+    }
+
+    .switch-btn[aria-pressed="true"],
+    .switch-btn[aria-pressed="true"]:hover {
+      color: #ffffff;
+    }
+
+    .switch-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    /* ---------- Clear button ---------- */
+    .ghost-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: calc(0.55rem - 1px) 1.15rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition:
+        color 0.2s ease,
+        border-color 0.2s ease,
+        background-color 0.2s ease,
+        transform 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .ghost-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(99, 102, 241, 0.06);
+    }
+
+    .ghost-btn:active {
+      transform: scale(0.96);
+    }
+
+    .ghost-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .ghost-btn[hidden] {
+      display: none;
+    }
+
+    /* ---------- Display ---------- */
     .display-area {
       height: 160px;
       display: flex;
@@ -114,7 +220,7 @@
     .animate-pop {
       animation: pop 0.3s ease-out forwards;
     }
-    
+
     .rolling {
       color: var(--accent) !important;
     }
@@ -127,14 +233,21 @@
       color: var(--text-main);
       font-variant-numeric: tabular-nums;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .switch-thumb.is-ready { transition: none; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="control-area">
-      <button id="button-single">Single</button>
-      <button id="button-multi">Multi</button>
-      <button id="button-clear">Clear</button>
+      <div class="switch" role="group" aria-label="Roll mode">
+        <span class="switch-thumb" aria-hidden="true"></span>
+        <button id="button-single" class="switch-btn" type="button" aria-pressed="true">Single</button>
+        <button id="button-multi" class="switch-btn" type="button" aria-pressed="false">Multi</button>
+      </div>
+      <button id="button-clear" class="ghost-btn" type="button">Clear</button>
     </div>
 
     <div class="display-area">
@@ -203,10 +316,62 @@
     const buttonMulti = document.getElementById('button-multi');
     const buttonClear = document.getElementById('button-clear');
     const diceButtons = document.querySelectorAll('.die-button');
-    let rollInterval;
+    const switchEl = document.querySelector('.switch');
+    const thumbEl = document.querySelector('.switch-thumb');
 
+    let rollInterval = null;
     let isSingle = true;
     buttonClear.hidden = true;
+
+    /* ---------------------------------------------------------
+       Sliding thumb: measured from the real buttons so it stays
+       pixel-perfect whatever the label / font size is.
+    --------------------------------------------------------- */
+    function positionThumb() {
+      const active = isSingle ? buttonSingle : buttonMulti;
+      const sRect = switchEl.getBoundingClientRect();
+      const bRect = active.getBoundingClientRect();
+      if (!bRect.width) return;
+
+      const cs = getComputedStyle(switchEl);
+      const x = bRect.left - sRect.left - (parseFloat(cs.borderLeftWidth) || 0);
+      const y = bRect.top - sRect.top - (parseFloat(cs.borderTopWidth) || 0);
+
+      thumbEl.style.width = bRect.width + 'px';
+      thumbEl.style.height = bRect.height + 'px';
+      thumbEl.style.transform = `translate(${x}px, ${y}px)`;
+    }
+
+    positionThumb();
+    requestAnimationFrame(() => thumbEl.classList.add('is-ready'));
+    window.addEventListener('resize', positionThumb);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(positionThumb);
+    }
+
+    /* --------------------------------------------------------- */
+
+    function resetDisplays() {
+      if (rollInterval) {
+        clearInterval(rollInterval);
+        rollInterval = null;
+      }
+      calcDisplay.innerText = "";
+      rollingDisplay.innerText = "";
+      eqDisplay.innerText = "";
+      resultDisplay.innerText = "";
+      rollingDisplay.classList.remove('animate-pop', 'rolling');
+      resultDisplay.classList.remove('animate-pop', 'rolling');
+    }
+
+    function setMode(single) {
+      isSingle = single;
+      buttonSingle.setAttribute('aria-pressed', String(single));
+      buttonMulti.setAttribute('aria-pressed', String(!single));
+      buttonClear.hidden = single;
+      resetDisplays();
+      positionThumb();
+    }
 
     function rollDie(sides) {
       if (rollInterval) clearInterval(rollInterval);
@@ -233,7 +398,8 @@
 
         if (ticks >= maxTicks) {
           clearInterval(rollInterval);
-          
+          rollInterval = null;
+
           const finalResult = Math.floor(Math.random() * sides) + 1;
           rollingDisplay.classList.remove('rolling');
           resultDisplay.classList.remove('rolling');
@@ -258,29 +424,14 @@
     });
 
     buttonSingle.addEventListener('click', () => {
-      isSingle = true;
-      calcDisplay.innerText = "";
-      rollingDisplay.innerText = "";
-      eqDisplay.innerText = "";
-      resultDisplay.innerText = "";
-      buttonClear.hidden = true;
+      if (!isSingle) setMode(true);
     });
 
     buttonMulti.addEventListener('click', () => {
-      isSingle = false;
-      calcDisplay.innerText = "";
-      rollingDisplay.innerText = "";
-      eqDisplay.innerText = "";
-      resultDisplay.innerText = "";
-      buttonClear.hidden = false;
+      if (isSingle) setMode(false);
     });
 
-    buttonClear.addEventListener('click', () => {
-      calcDisplay.innerText = "";
-      rollingDisplay.innerText = "";
-      eqDisplay.innerText = "";
-      resultDisplay.innerText = "";
-    });
+    buttonClear.addEventListener('click', resetDisplays);
   </script>
 </body>
 </html>
