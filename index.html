@@ -9,27 +9,19 @@
   <link rel="apple-touch-icon" href="/diceroller/favicon-ios.png" />
   <style>
     :root {
-      /* Dark stone / night sky */
       --bg-color: #1a1208;
-      --bg-glow: #6b3a10;
-      /* Parchment card */
       --card-bg: #efe0b8;
-      --card-shade: #d4b878;
-      /* Ink on parchment */
       --text-main: #2a1a08;
       --text-muted: #6b4a1a;
-      /* Gold / bronze */
       --gold-light: #f5d670;
       --gold-mid: #c9a227;
       --gold-dark: #8b6914;
       --bronze: #8b6a30;
       --bronze-dark: #3a2a14;
       --bronze-shadow: #2a1a08;
-      /* Wax seal red */
       --wax-red: #8b1010;
       --wax-red-hi: #c03030;
       --wax-red-dark: #4a0808;
-      /* Accent used by .rolling flicker */
       --accent: #b8860b;
       --border: #8b6a30;
     }
@@ -42,6 +34,8 @@
 
     html {
       background-color: var(--bg-color);
+      scrollbar-color: var(--gold-mid) var(--bronze-shadow);
+      scrollbar-width: thin;
     }
 
     body {
@@ -52,8 +46,6 @@
       min-height: calc(100vh - 2rem);
       padding: 1rem;
       overflow-anchor: none;
-
-      /* Atmospheric dark background: warm vignette + faint red glow */
       background-color: var(--bg-color);
       background-image:
         radial-gradient(ellipse at 50% 15%, rgba(201, 162, 39, 0.18) 0%, transparent 55%),
@@ -63,28 +55,21 @@
     }
 
     .container {
-      /* Centering behaviour preserved */
       margin: auto;
       background-color: var(--card-bg);
-
-      /* Aged parchment: warm top highlight, corner shading, subtle fibre dots */
       background-image:
         radial-gradient(ellipse at 25% 0%, rgba(255, 250, 220, 0.9) 0%, transparent 55%),
         radial-gradient(ellipse at 90% 100%, rgba(139, 90, 30, 0.18) 0%, transparent 55%),
         radial-gradient(circle, rgba(120, 80, 30, 0.05) 1px, transparent 1px);
       background-size: auto, auto, 3px 3px;
-
       padding: 2.75rem 2rem;
       width: 100%;
       max-width: 600px;
       text-align: center;
-
-      /* Ornate double frame: inner bronze line + outer dark outline */
       border: 1px solid var(--bronze);
       outline: 2px solid var(--bronze-shadow);
       outline-offset: 4px;
       border-radius: 3px;
-
       box-shadow:
         inset 0 0 40px rgba(139, 90, 30, 0.22),
         inset 0 0 0 1px rgba(255, 240, 200, 0.4),
@@ -92,16 +77,21 @@
         0 0 60px rgba(201, 162, 39, 0.08);
     }
 
-    /* ---------- Control bar ---------- */
     .control-area {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1rem;
+      gap: 0.75rem;
       margin-bottom: 1.5rem;
+      flex-wrap: wrap;
     }
 
-    /* ---------- Segmented switch (carved bronze plaque) ---------- */
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
     .switch {
       position: relative;
       display: inline-flex;
@@ -177,7 +167,6 @@
       outline-offset: 2px;
     }
 
-    /* ---------- Clear button (wax seal) ---------- */
     .ghost-btn {
       border: 1px solid var(--wax-red-dark);
       background: linear-gradient(180deg, var(--wax-red-hi) 0%, var(--wax-red) 55%, #6a0808 100%);
@@ -231,7 +220,35 @@
       display: none;
     }
 
-    /* ---------- Display (recessed manuscript panel) ---------- */
+    .ghost-btn--gold {
+      border-color: var(--gold-dark);
+      background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold-mid) 55%, var(--gold-dark) 100%);
+      color: #2a1a08;
+      text-shadow: 0 1px 0 rgba(255, 240, 200, 0.5);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.55),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+        0 2px 0 #4a3510,
+        0 3px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .ghost-btn--gold:hover {
+      color: #000;
+      background: linear-gradient(180deg, #fff0a0 0%, var(--gold-light) 55%, var(--gold-mid) 100%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.65),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+        0 2px 0 #4a3510,
+        0 3px 12px rgba(201, 162, 39, 0.6);
+    }
+
+    .ghost-btn--gold:active {
+      transform: translateY(1px);
+      box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.35),
+        0 0 0 #4a3510;
+    }
+
     .display-area {
       min-height: 160px;
       display: flex;
@@ -241,7 +258,6 @@
       gap: 0.05em;
       padding: 0.75rem 0.5rem;
       margin-bottom: 2rem;
-
       background:
         linear-gradient(180deg,
           rgba(74, 42, 15, 0.10) 0%,
@@ -265,7 +281,16 @@
       word-break: break-word;
     }
 
-    /* ---------- Dice grid ---------- */
+    #status {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      font-style: italic;
+      color: rgba(74, 42, 15, 0.5);
+      letter-spacing: 0.06em;
+      min-height: 1.1em;
+      font-variant-numeric: tabular-nums;
+    }
+
     .dice-grid {
       display: flex;
       flex-wrap: wrap;
@@ -273,7 +298,6 @@
       justify-content: center;
     }
 
-    /* Carved wooden / bone tiles */
     .die-button {
       background: linear-gradient(180deg, #f7ecc8 0%, #e8d5a0 48%, #d4b878 100%);
       border: 2px solid #6b4a1a;
@@ -335,7 +359,6 @@
       letter-spacing: -0.02em;
     }
 
-    /* Pop Animation for Result */
     @keyframes pop {
       0% { transform: scale(0.8); opacity: 0; }
       50% { transform: scale(1.1); }
@@ -346,7 +369,6 @@
       animation: pop 0.3s ease-out forwards;
     }
 
-    /* Glowing rune while flickering */
     .rolling {
       color: var(--accent) !important;
       text-shadow:
@@ -372,7 +394,6 @@
       font-size: 6rem;
     }
 
-    /* Old manuscript ink: engraved into the parchment */
     #calc, #rolling, #result, #eq {
       font-weight: 700;
       font-family: Georgia, "Palatino Linotype", serif;
@@ -388,7 +409,112 @@
       word-break: break-word;
     }
 
-    /* --- Retro scrollbar (WebKit/Blink) --- */
+    .history-sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: 300px;
+      max-width: 85vw;
+      padding: 1.5rem 1.25rem;
+      background-color: #2a1a08;
+      background-image:
+        radial-gradient(ellipse at 50% 0%, rgba(201, 162, 39, 0.18) 0%, transparent 55%),
+        repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 0 2px, transparent 2px 4px);
+      border-left: 3px solid var(--bronze);
+      box-shadow:
+        -8px 0 24px rgba(0, 0, 0, 0.6),
+        inset 1px 0 0 rgba(255, 220, 150, 0.15);
+      transform: translateX(100%);
+      transition: transform 0.32s cubic-bezier(0.34, 1.1, 0.64, 1);
+      z-index: 100;
+      overflow-y: auto;
+      color: var(--gold-light);
+    }
+
+    .history-sidebar.open {
+      transform: translateX(0);
+    }
+
+    .history-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding-bottom: 0.75rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(201, 162, 39, 0.35);
+    }
+
+    .history-title span {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold-mid);
+      text-shadow: 0 0 12px rgba(201, 162, 39, 0.45);
+    }
+
+    .history-close {
+      background: none;
+      border: none;
+      color: var(--gold-mid);
+      font: inherit;
+      font-size: 1.5rem;
+      line-height: 1;
+      letter-spacing: 0;
+      padding: 0 0.25rem;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.15s ease, color 0.15s ease;
+    }
+
+    .history-close:hover {
+      opacity: 1;
+      color: var(--gold-light);
+    }
+
+    .history-close:focus-visible {
+      outline: 2px solid var(--gold-light);
+      outline-offset: 2px;
+      border-radius: 3px;
+    }
+
+    .history-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .history-entry {
+      padding: 0.55rem 0.8rem;
+      font-size: 0.9rem;
+      font-family: Georgia, "Palatino Linotype", serif;
+      letter-spacing: 0.03em;
+      color: #d4b878;
+      background: rgba(0, 0, 0, 0.25);
+      border-left: 2px solid rgba(201, 162, 39, 0.4);
+      border-radius: 2px;
+      cursor: help;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      overflow-wrap: anywhere;
+    }
+
+    .history-entry:hover {
+      background: rgba(201, 162, 39, 0.14);
+      color: var(--gold-light);
+      border-left-color: var(--gold-light);
+    }
+
+    .history-empty {
+      padding: 1.25rem 0.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      font-style: italic;
+      color: rgba(212, 184, 120, 0.5);
+    }
+
     ::-webkit-scrollbar {
       width: 12px;
     }
@@ -404,14 +530,10 @@
     ::-webkit-scrollbar-thumb:hover {
       background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold-mid) 100%);
     }
-    /* Firefox */
-    html {
-      scrollbar-color: var(--gold-mid) var(--bronze-shadow);
-      scrollbar-width: thin;
-    }
 
     @media (prefers-reduced-motion: reduce) {
       .switch-thumb.is-ready { transition: none; }
+      .history-sidebar { transition: none; }
     }
   </style>
 </head>
@@ -423,6 +545,7 @@
       </div>
       <div id="eq"></div>
       <div id="result"></div>
+      <div id="status"></div>
     </div>
 
     <div class="control-area">
@@ -431,7 +554,10 @@
         <button id="button-single" class="switch-btn" type="button" aria-pressed="true">Single</button>
         <button id="button-multi" class="switch-btn" type="button" aria-pressed="false">Multi</button>
       </div>
-      <button id="button-clear" class="ghost-btn" type="button">Clear</button>
+      <div class="btn-group">
+        <button id="button-history" class="ghost-btn ghost-btn--gold" type="button" aria-expanded="false" aria-controls="history-sidebar">History</button>
+        <button id="button-clear" class="ghost-btn" type="button">Clear</button>
+      </div>
     </div>
 
     <div class="dice-grid">
@@ -480,6 +606,14 @@
     </div>
   </div>
 
+  <aside id="history-sidebar" class="history-sidebar" aria-hidden="true">
+    <div class="history-title">
+      <span>History</span>
+      <button type="button" class="history-close" aria-label="Close history">×</button>
+    </div>
+    <ul id="history-list" class="history-list"></ul>
+  </aside>
+
   <script>
     if (navigator.language.startsWith("ru")) {
       document.title = "Удобные кости";
@@ -489,23 +623,117 @@
     const rollingDisplay = document.getElementById('rolling');
     const eqDisplay = document.getElementById('eq');
     const resultDisplay = document.getElementById('result');
+    const statusEl = document.getElementById('status');
     const buttonSingle = document.getElementById('button-single');
     const buttonMulti = document.getElementById('button-multi');
     const buttonClear = document.getElementById('button-clear');
+    const buttonHistory = document.getElementById('button-history');
     const diceButtons = document.querySelectorAll('.die-button');
     const switchEl = document.querySelector('.switch');
     const thumbEl = document.querySelector('.switch-thumb');
     const containerEl = document.querySelector('.container');
     const diceGridEl = document.querySelector('.dice-grid');
     const bodyEl = document.body;
+    const sidebarEl = document.getElementById('history-sidebar');
+    const historyListEl = document.getElementById('history-list');
+
+    const HISTORY_MAX = 30;
 
     let rollInterval = null;
     let isSingle = true;
     buttonClear.hidden = true;
 
-    /* ---------------------------------------------------------
-       Scroll anchoring.
-    --------------------------------------------------------- */
+    let sessionCounter = 0;
+    let currentSessionId = null;
+    let currentSessionRolls = [];
+    let historyEntries = [];
+    let pendingRoll = null;
+
+    function formatDiceComposition(rolls) {
+      const order = [];
+      const counts = new Map();
+      for (const r of rolls) {
+        if (!counts.has(r.sides)) order.push(r.sides);
+        counts.set(r.sides, (counts.get(r.sides) || 0) + 1);
+      }
+      return order.map(s => `${counts.get(s)}d${s}`).join(' + ');
+    }
+
+    function updateStatus() {
+      statusEl.textContent = currentSessionRolls.length
+        ? formatDiceComposition(currentSessionRolls)
+        : '';
+    }
+
+    function renderHistory() {
+      historyListEl.innerHTML = '';
+      if (historyEntries.length === 0) {
+        const li = document.createElement('li');
+        li.className = 'history-empty';
+        li.textContent = 'No entries yet';
+        historyListEl.appendChild(li);
+        return;
+      }
+      for (let i = historyEntries.length - 1; i >= 0; i--) {
+        const entry = historyEntries[i];
+        const li = document.createElement('li');
+        li.className = 'history-entry';
+        const diceStr = formatDiceComposition(entry.rolls);
+        const total = entry.rolls.reduce((a, r) => a + r.value, 0);
+        li.textContent = `${diceStr} = ${total}`;
+        const exact = entry.rolls.map(r => r.value).join(' + ');
+        li.title = entry.rolls.length === 1 ? String(total) : `${exact} = ${total}`;
+        historyListEl.appendChild(li);
+      }
+    }
+
+    function recordHistory() {
+      if (currentSessionRolls.length === 0 || currentSessionId === null) return;
+      const entry = {
+        id: currentSessionId,
+        rolls: currentSessionRolls.map(r => ({ sides: r.sides, value: r.value }))
+      };
+      const idx = historyEntries.findIndex(e => e.id === currentSessionId);
+      if (idx >= 0) historyEntries[idx] = entry;
+      else historyEntries.push(entry);
+
+      const overflow = historyEntries.length - HISTORY_MAX;
+      if (overflow > 0) historyEntries.splice(0, overflow);
+
+      renderHistory();
+    }
+
+    function startFreshSession() {
+      currentSessionId = null;
+      currentSessionRolls = [];
+      updateStatus();
+    }
+
+    renderHistory();
+
+    function setSidebar(open) {
+      sidebarEl.classList.toggle('open', open);
+      sidebarEl.setAttribute('aria-hidden', String(!open));
+      buttonHistory.setAttribute('aria-expanded', String(open));
+    }
+
+    buttonHistory.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setSidebar(!sidebarEl.classList.contains('open'));
+    });
+
+    sidebarEl.querySelector('.history-close').addEventListener('click', () => setSidebar(false));
+
+    document.addEventListener('click', (e) => {
+      if (!sidebarEl.classList.contains('open')) return;
+      if (sidebarEl.contains(e.target) || buttonHistory.contains(e.target)) return;
+      setSidebar(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && sidebarEl.classList.contains('open')) setSidebar(false);
+    });
+
     function docTop(el) {
       return el.getBoundingClientRect().top + window.scrollY;
     }
@@ -537,18 +765,13 @@
         const curPB = getBodyPaddingBottom();
         const basePB = 16;
         const reduceBy = Math.min(-remaining, Math.max(0, curPB - basePB));
-        if (reduceBy > 0) {
-          setBodyPaddingBottom(curPB - reduceBy);
-        }
+        if (reduceBy > 0) setBodyPaddingBottom(curPB - reduceBy);
       }
 
       lastGridDocTop = docTop(diceGridEl);
     });
     ro.observe(containerEl);
 
-    /* ---------------------------------------------------------
-       Sliding thumb
-    --------------------------------------------------------- */
     function positionThumb() {
       const active = isSingle ? buttonSingle : buttonMulti;
       const sRect = switchEl.getBoundingClientRect();
@@ -571,19 +794,32 @@
       document.fonts.ready.then(positionThumb);
     }
 
-    /* --------------------------------------------------------- */
+    function commitRoll(sides, value) {
+      if (isSingle) {
+        currentSessionId = ++sessionCounter;
+        currentSessionRolls = [{ sides, value }];
+      } else {
+        if (currentSessionId === null) currentSessionId = ++sessionCounter;
+        currentSessionRolls.push({ sides, value });
+      }
+      updateStatus();
+      recordHistory();
+    }
 
     function resetDisplays() {
       if (rollInterval) {
         clearInterval(rollInterval);
         rollInterval = null;
       }
+      pendingRoll = null;
       calcDisplay.innerText = "";
       rollingDisplay.innerText = "";
       eqDisplay.innerText = "";
       resultDisplay.innerText = "";
       rollingDisplay.classList.remove('animate-pop', 'rolling');
       resultDisplay.classList.remove('animate-pop', 'rolling');
+
+      startFreshSession();
 
       setBodyPaddingBottom(16);
       window.scrollTo(0, 0);
@@ -602,7 +838,14 @@
     }
 
     function rollDie(sides) {
-      if (rollInterval) clearInterval(rollInterval);
+      if (rollInterval) {
+        clearInterval(rollInterval);
+        rollInterval = null;
+        if (pendingRoll) {
+          commitRoll(pendingRoll.sides, pendingRoll.value);
+          pendingRoll = null;
+        }
+      }
 
       if (isSingle) {
         calcDisplay.innerText = "";
@@ -616,12 +859,18 @@
       rollingDisplay.classList.add('rolling');
       resultDisplay.classList.add('rolling');
 
+      const initial = Math.floor(Math.random() * sides) + 1;
+      rollingDisplay.innerText = initial;
+      pendingRoll = { sides, value: initial };
+
       let ticks = 0;
       const maxTicks = 12;
       const tickDuration = 35;
 
       rollInterval = setInterval(() => {
-        rollingDisplay.innerText = Math.floor(Math.random() * sides) + 1;
+        const v = Math.floor(Math.random() * sides) + 1;
+        rollingDisplay.innerText = v;
+        if (pendingRoll) pendingRoll.value = v;
         ticks++;
 
         if (ticks >= maxTicks) {
@@ -634,6 +883,9 @@
           rollingDisplay.innerText = finalResult;
           void resultDisplay.offsetWidth;
           rollingDisplay.classList.add('animate-pop');
+
+          pendingRoll = null;
+          commitRoll(sides, finalResult);
 
           if (calcDisplay.innerText !== "") {
             eqDisplay.innerText = "=";
