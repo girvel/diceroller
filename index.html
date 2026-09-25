@@ -491,24 +491,66 @@
       gap: 0.5rem;
     }
 
+    .history-item {
+      display: flex;
+      flex-direction: column;
+    }
+
     .history-entry {
+      display: block;
+      width: 100%;
+      text-align: left;
       padding: 0.55rem 0.8rem;
-      font-size: 0.9rem;
+      font: inherit;
       font-family: Georgia, "Palatino Linotype", serif;
+      font-size: 0.9rem;
+      font-weight: 400;
       letter-spacing: 0.03em;
+      text-transform: none;
       color: #d4b878;
       background: rgba(0, 0, 0, 0.25);
+      border: none;
       border-left: 2px solid rgba(201, 162, 39, 0.4);
       border-radius: 2px;
-      cursor: help;
+      cursor: pointer;
       transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
       overflow-wrap: anywhere;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .history-entry:hover {
       background: rgba(201, 162, 39, 0.14);
       color: var(--gold-light);
       border-left-color: var(--gold-light);
+    }
+
+    .history-entry:focus-visible {
+      outline: 2px solid var(--gold-light);
+      outline-offset: 2px;
+    }
+
+    .history-details {
+      display: none;
+      padding: 0.5rem 0.8rem 0.6rem;
+      font-size: 0.82rem;
+      font-family: Georgia, "Palatino Linotype", serif;
+      font-style: italic;
+      letter-spacing: 0.04em;
+      color: rgba(212, 184, 120, 0.78);
+      background: rgba(0, 0, 0, 0.14);
+      border-left: 2px solid rgba(201, 162, 39, 0.2);
+      border-radius: 0 0 2px 2px;
+      overflow-wrap: anywhere;
+    }
+
+    .history-item.open .history-entry {
+      background: rgba(201, 162, 39, 0.14);
+      color: var(--gold-light);
+      border-left-color: var(--gold-light);
+    }
+
+    .history-item.open .history-details {
+      display: block;
     }
 
     .history-empty {
@@ -719,12 +761,30 @@
       for (let i = historyEntries.length - 1; i >= 0; i--) {
         const entry = historyEntries[i];
         const li = document.createElement('li');
-        li.className = 'history-entry';
+        li.className = 'history-item';
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'history-entry';
         const diceStr = formatDiceComposition(entry.rolls);
         const total = entry.rolls.reduce((a, r) => a + r.value, 0);
-        li.textContent = `${diceStr} = ${total}`;
+        button.textContent = `${diceStr} = ${total}`;
+
+        const details = document.createElement('div');
+        details.className = 'history-details';
         const exact = entry.rolls.map(r => r.value).join(' + ');
-        li.title = entry.rolls.length === 1 ? String(total) : `${exact} = ${total}`;
+        details.textContent = entry.rolls.length === 1
+          ? String(total)
+          : `${exact} = ${total}`;
+
+        button.addEventListener('click', () => {
+          const wasOpen = li.classList.contains('open');
+          historyListEl.querySelectorAll('.history-item.open').forEach(el => el.classList.remove('open'));
+          if (!wasOpen) li.classList.add('open');
+        });
+
+        li.appendChild(button);
+        li.appendChild(details);
         historyListEl.appendChild(li);
       }
     }
