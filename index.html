@@ -564,43 +564,43 @@
       <button class="die-button" data-sides="4" aria-label="Roll d4">
         <svg viewBox="0 0 100 100">
           <polygon points="50,15 15,80 85,80" />
-          <text x="50%" y="64%" dominant-baseline="middle" text-anchor="middle">d4</text>
+          <text x="50%" y="64%" dominant-baseline="middle" text-anchor="middle">4</text>
         </svg>
       </button>
       <button class="die-button" data-sides="6" aria-label="Roll d6">
         <svg viewBox="0 0 100 100">
           <rect x="20" y="20" width="60" height="60" rx="8" />
-          <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle">d6</text>
+          <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle">6</text>
         </svg>
       </button>
       <button class="die-button" data-sides="8" aria-label="Roll d8">
         <svg viewBox="0 0 100 100">
           <polygon points="50,15 85,50 50,85 15,50" />
-          <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle">d8</text>
+          <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle">8</text>
         </svg>
       </button>
       <button class="die-button" data-sides="10" aria-label="Roll d10">
         <svg viewBox="0 0 100 100">
           <polygon points="50,15 85,40 50,85 15,40" />
-          <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">d10</text>
+          <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">10</text>
         </svg>
       </button>
       <button class="die-button" data-sides="12" aria-label="Roll d12">
         <svg viewBox="0 0 100 100">
           <polygon points="50,15 85,38 72,85 28,85 15,38" />
-          <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle">d12</text>
+          <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle">12</text>
         </svg>
       </button>
       <button class="die-button" data-sides="20" aria-label="Roll d20">
         <svg viewBox="0 0 100 100">
           <polygon points="50,10 85,30 85,70 50,90 15,70 15,30" />
-          <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle">d20</text>
+          <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle">20</text>
         </svg>
       </button>
       <button class="die-button" data-sides="100" aria-label="Roll d100">
         <svg viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="35" />
-          <text x="50%" y="54%" font-size="20px" dominant-baseline="middle" text-anchor="middle">d100</text>
+          <text x="50%" y="54%" font-size="20px" dominant-baseline="middle" text-anchor="middle">100</text>
         </svg>
       </button>
     </div>
@@ -608,16 +608,40 @@
 
   <aside id="history-sidebar" class="history-sidebar" aria-hidden="true">
     <div class="history-title">
-      <span>History</span>
+      <span id="history-title-text">History</span>
       <button type="button" class="history-close" aria-label="Close history">×</button>
     </div>
     <ul id="history-list" class="history-list"></ul>
   </aside>
 
   <script>
-    if (navigator.language.startsWith("ru")) {
-      document.title = "Удобные кости";
-    }
+    const RU = navigator.language.startsWith("ru");
+
+    const STR = RU
+      ? {
+          title: "Удобные кости",
+          single: "Один",
+          multi: "Много",
+          clear: "Очистить",
+          history: "История",
+          historyClose: "Закрыть историю",
+          historyEmpty: "Пока пусто",
+          rollPrefix: "Бросить к",
+          diePrefix: "к"
+        }
+      : {
+          title: "Dice Roller with Good UX",
+          single: "Single",
+          multi: "Multi",
+          clear: "Clear",
+          history: "History",
+          historyClose: "Close history",
+          historyEmpty: "No entries yet",
+          rollPrefix: "Roll d",
+          diePrefix: "d"
+        };
+
+    document.title = STR.title;
 
     const calcDisplay = document.getElementById('calc');
     const rollingDisplay = document.getElementById('rolling');
@@ -636,6 +660,20 @@
     const bodyEl = document.body;
     const sidebarEl = document.getElementById('history-sidebar');
     const historyListEl = document.getElementById('history-list');
+    const historyTitleEl = document.getElementById('history-title-text');
+    const historyCloseEl = sidebarEl.querySelector('.history-close');
+
+    buttonSingle.textContent = STR.single;
+    buttonMulti.textContent = STR.multi;
+    buttonClear.textContent = STR.clear;
+    buttonHistory.textContent = STR.history;
+    historyTitleEl.textContent = STR.history;
+    historyCloseEl.setAttribute('aria-label', STR.historyClose);
+
+    diceButtons.forEach(btn => {
+      const sides = btn.dataset.sides;
+      btn.setAttribute('aria-label', STR.rollPrefix + sides);
+    });
 
     const HISTORY_MAX = 30;
 
@@ -656,7 +694,7 @@
         if (!counts.has(r.sides)) order.push(r.sides);
         counts.set(r.sides, (counts.get(r.sides) || 0) + 1);
       }
-      return order.map(s => `${counts.get(s)}d${s}`).join(' + ');
+      return order.map(s => `${counts.get(s)}${STR.diePrefix}${s}`).join(' + ');
     }
 
     function updateStatus() {
@@ -670,7 +708,7 @@
       if (historyEntries.length === 0) {
         const li = document.createElement('li');
         li.className = 'history-empty';
-        li.textContent = 'No entries yet';
+        li.textContent = STR.historyEmpty;
         historyListEl.appendChild(li);
         return;
       }
@@ -722,7 +760,7 @@
       setSidebar(!sidebarEl.classList.contains('open'));
     });
 
-    sidebarEl.querySelector('.history-close').addEventListener('click', () => setSidebar(false));
+    historyCloseEl.addEventListener('click', () => setSidebar(false));
 
     document.addEventListener('click', (e) => {
       if (!sidebarEl.classList.contains('open')) return;

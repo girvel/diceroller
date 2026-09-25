@@ -8,4 +8,4 @@
 - [x] Fix scroll moving the mouse away from the current button
 - [x] History?
 - [x] Status (like 10d20 + 5d6)
-- [ ] i18n
+- [x] i18n
